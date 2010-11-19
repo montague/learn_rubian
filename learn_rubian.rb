@@ -1,5 +1,13 @@
 STDOUT.sync = true
 
+#purposes
+#1) illustrate the various spells in metaprogramming in ruby
+#2) give practice tasks for one-liners
+
+#approach
+#run a special version of irb that allows me to intercept the input, 
+#check it against assigned tasks, then pass it down to the interpreter
+
 module Iterators
   def self.t_range
     
@@ -21,7 +29,7 @@ end
 
 s = nil
 
-until s == 'q'
-  Iterators.t_range
-end
+# until s == 'q'
+#   Iterators.t_range
+# end
 puts 'good-bye'
