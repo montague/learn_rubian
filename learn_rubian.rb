@@ -1,5 +1,5 @@
-
-
+#!/usr/bin/env ruby
+require 'readline'
 #purposes
 #1) illustrate the various spells in metaprogramming in ruby
 #2) give practice tasks for one-liners
@@ -12,6 +12,7 @@ module Learn_Rubian
   module Util
     class << self
       PROMPT = "irbian>"
+      HISTORY = []
       
       def init
         STDOUT.sync = true
@@ -29,7 +30,7 @@ module Learn_Rubian
       end
       
       def display_task_prompt(task)
-        display_message("write a one-liner that outputs #{task}")
+        display_message("write a one-liner that outputs #{task.task_result}")
         print "#{PROMPT} "
       end
 
@@ -50,7 +51,7 @@ module Learn_Rubian
           result = nil
           begin
             result = eval(input)
-            is_correct = result == eval(@current_task)
+            is_correct = result == eval(@current_task.task_result)
           rescue Exception
             display_message("not sure what that was, but it wasn't ruby.")
             return
@@ -65,7 +66,7 @@ module Learn_Rubian
       
       def process_correct_input(is_using_a_block)
         if is_using_a_block
-          @is_current_task_complete = true 
+          @current_task.completed = true
           display_message("nice.")
         else
           display_message("good. try using a block.")
@@ -73,7 +74,7 @@ module Learn_Rubian
       end
       
       def is_a_cheater?(input)
-        input.gsub('"','').gsub("'","") == @current_task 
+        input.gsub(/['"]/,'') == @current_task.task_result 
       end
       
       def execute_command(command)
@@ -84,19 +85,23 @@ module Learn_Rubian
         end
       end
       
+      def get_input
+        HISTORY.push(gets.chomp)
+        HISTORY.last
+      end
+
       def run(tasks)
         init()
         tasks.each do |task|
           @current_task = task
-          @is_current_task_complete = false
           while true #run eval loop
             display_task_prompt(task)
-            process_input(gets.chomp)
+            process_input(get_input)
             if @skip
               @skip = false
               break
             end
-            break if @is_current_task_complete          
+            break if @current_task.completed?          
           end   
         end
         display_message("well done. go outside and play.")
@@ -106,15 +111,15 @@ module Learn_Rubian
 
   class Tasks
     include Util
-
+    
     class << self
       #set up array of one-liners to ask for
       def initialize()
         @t = [
-              '[1, 2]',
-              '"1,2,3,4,5,6,7,8,9,10"',
-              '[2, 4, 6, 8]',
-              '[1, 1, 1, 1]'
+              Task.new('[1, 2]'),
+              Task.new('"1,2,3,4,5,6,7,8,9,10"'),
+              Task.new('[2, 4, 6, 8]'),
+              Task.new('[1, 1, 1, 1]')
              ]
       end
       
@@ -124,5 +129,27 @@ module Learn_Rubian
       end
     end
   end
+
+  class Task
+    DEFAULT_FAIL = "try again."
+    DEFAULT_SUCCESS = "good job."
+    attr_accessor :task_result, :fail_message, :success_message
+    
+    def completed?
+      @completed
+    end
+    
+    def completed=(s)
+      @completed = s
+    end
+    
+    def initialize(task_result, fail_message=DEFAULT_FAIL, success_message=DEFAULT_SUCCESS)
+      @task_result = task_result
+      @fail_message = fail_message
+      @success_message = success_message
+      @completed = false
+    end
+  end
 end
-Learn_Rubian::Tasks.go
+
+
