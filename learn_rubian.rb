@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 require 'readline'
+
+#
+# All code in this project is licensed under the MIT license.
+# Enjoy.
+#
 #purposes
 #1) illustrate the various spells in metaprogramming in ruby
 #2) give practice tasks for one-liners
