@@ -12,7 +12,6 @@ module Learn_Rubian
   module Util
     class << self
       PROMPT = "irbian>"
-      HISTORY = []
       
       def init
         STDOUT.sync = true
@@ -25,13 +24,22 @@ module Learn_Rubian
         display_message("on to the next one...")
       end
       
+      def get_input
+        line = Readline::readline("#{PROMPT} ",true)
+        return nil if line.nil?
+        if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
+          Readline::HISTORY.pop
+        end
+        line
+      end
+
+
       def display_message(s)
         print "#{PROMPT} #{s}\n"
       end
       
       def display_task_prompt(task)
         display_message("write a one-liner that outputs #{task.task_result}")
-        print "#{PROMPT} "
       end
 
       def process_input(input)
@@ -53,7 +61,8 @@ module Learn_Rubian
             result = eval(input)
             is_correct = result == eval(@current_task.task_result)
           rescue Exception
-            display_message("not sure what that was, but it wasn't ruby.")
+            #display_message("not sure what that was, but it wasn't ruby.")
+            display_message($!)
             return
           end
           if is_correct 
@@ -65,7 +74,7 @@ module Learn_Rubian
       end
       
       def process_correct_input(is_using_a_block)
-        if is_using_a_block
+        if is_using_a_block #maybe we don't need to force a block...
           @current_task.completed = true
           display_message("nice.")
         else
@@ -74,6 +83,7 @@ module Learn_Rubian
       end
       
       def is_a_cheater?(input)
+        return false if input.nil?
         input.gsub(/['"]/,'') == @current_task.task_result 
       end
       
@@ -85,11 +95,6 @@ module Learn_Rubian
         end
       end
       
-      def get_input
-        HISTORY.push(gets.chomp)
-        HISTORY.last
-      end
-
       def run(tasks)
         init()
         tasks.each do |task|
