@@ -8,11 +8,8 @@ require 'readline'
 #purposes
 #1) illustrate the various spells in metaprogramming in ruby
 #2) give practice tasks for one-liners
+#3) teach myself some ruby
 
-#approach
-#run a special version of irb that allows me to intercept the input, 
-#check it against assigned tasks, then pass it down to the interpreter
-#this is pretty much out the window at this point... who knows where this will go.
 module Learn_Rubian
   module Util
     class << self
@@ -20,7 +17,7 @@ module Learn_Rubian
       
       def init
         STDOUT.sync = true
-        @commands = {"quit" => :exit, "skip" => :skip, "fuck" => [:display_message,"watch your language."]}
+        @commands = {"quit" => :exit, "skip" => :skip, "fuck you" => [:display_message,"watch your language."]}
         @skip = false
       end
       
@@ -48,9 +45,10 @@ module Learn_Rubian
       end
 
       def process_input(input)
+        @current_task.input = input
         if @commands.keys.include?(input)
           execute_command(input)
-        else
+        else          
           evaluate_input(input)
         end
       end
@@ -79,11 +77,14 @@ module Learn_Rubian
       end
       
       def process_correct_input(is_using_a_block)
+        msg = "nice. #{@current_task.input.size} chars to complete."
         if is_using_a_block #maybe we don't need to force a block...
-          @current_task.completed = true
-          display_message("nice.")
+          @current_task.completed_with_block = true
+          # @current_task.completed = true
+          display_message("#{msg} #{'try it without using a block.' unless @current_task.completed?}")
         else
-          display_message("good. try using a block.")
+          @current_task.completed_without_block = true
+          display_message("#{msg} #{'try using a block.' unless @current_task.completed?}")
         end
       end
       
@@ -143,15 +144,17 @@ module Learn_Rubian
   class Task
     DEFAULT_FAIL = "try again."
     DEFAULT_SUCCESS = "good job."
-    attr_accessor :task_result, :fail_message, :success_message
-    
+    attr_accessor :task_result, :fail_message, :input
+    attr_accessor :success_message
+    attr_accessor :completed_with_block, :completed_without_block
+
     def completed?
-      @completed
+      @completed_with_block && @completed_without_block
     end
     
-    def completed=(s)
-      @completed = s
-    end
+    #def completed=(s)
+    #  @completed = s
+   # end
     
     def initialize(task_result, fail_message=DEFAULT_FAIL, success_message=DEFAULT_SUCCESS)
       @task_result = task_result
