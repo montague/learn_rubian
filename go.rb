@@ -1,2 +1,2 @@
 require './learn_rubian'
-Learn_Rubian::Tasks.go
+Learn_Rubian::Irbian.go
